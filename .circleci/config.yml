@@ -1,0 +1,13 @@
+version: 2.1
+
+orbs:
+  maven: circleci/maven@1.1
+  heroku: circleci/heroku@0.0.10
+
+workflows:
+  maven_test:
+    jobs:
+      - maven/test
+  heroku_deploy:
+    jobs:
+      - heroku/deploy-via-git
