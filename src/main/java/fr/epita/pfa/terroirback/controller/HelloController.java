@@ -13,6 +13,6 @@ public class HelloController {
     @ApiOperation("api de teste qui retourne hello")
     @GetMapping(value= "/hello")
     public Hello sayHello() {
-        return new Hello("Hello");
+        return new Hello("Hello World");
     }
 }
