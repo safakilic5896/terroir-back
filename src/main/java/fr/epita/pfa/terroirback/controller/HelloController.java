@@ -1,5 +1,6 @@
 package fr.epita.pfa.terroirback.controller;
 
+import fr.epita.pfa.terroirback.dto.Hello;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,7 +12,7 @@ public class HelloController {
 
     @ApiOperation("api de teste qui retourne hello")
     @GetMapping(value= "/hello")
-    public String sayHello() {
-        return "Hello";
+    public Hello sayHello() {
+        return new Hello("Hello");
     }
 }
