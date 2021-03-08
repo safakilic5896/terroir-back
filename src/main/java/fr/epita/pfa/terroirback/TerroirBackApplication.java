@@ -15,15 +15,4 @@ public class TerroirBackApplication {
 		SpringApplication.run(TerroirBackApplication.class, args);
 	}
 
-	@Bean
-	public WebMvcConfigurer corsConfigurer() {
-		return new WebMvcConfigurer() {
-			@Override
-			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/**")
-						.allowedOrigins("https://terroir-front-dev.surge.sh", "http://localhost:4200")
-						.allowedMethods("GET", "PUT", "POST", "PATCH", "DELETE", "OPTIONS");
-			}
-		};
-	}
 }
