@@ -1,12 +1,16 @@
 package fr.epita.pfa.terroirback.database;
 
-import lombok.Data;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalTime;
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
+@Builder
 public class OpeningTime {
 
     @Id

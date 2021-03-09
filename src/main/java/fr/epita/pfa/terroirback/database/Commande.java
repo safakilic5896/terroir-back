@@ -1,13 +1,17 @@
 package fr.epita.pfa.terroirback.database;
 
-import lombok.Data;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
-@Data
+@Builder
 public class Commande {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
