@@ -1,12 +1,15 @@
 package fr.epita.pfa.terroirback.database;
 
-import lombok.Data;
+import lombok.*;
 
-import javax.persistence.*;
-import java.util.Set;
+import javax.persistence.*;;
 
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
-@Data
+@Builder
 public class Product {
 
     @Id

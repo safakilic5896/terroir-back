@@ -1,9 +1,16 @@
 package fr.epita.pfa.terroirback.database;
 
+import lombok.*;
+
 import javax.persistence.*;
 import java.util.Set;
 
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
+@Builder
 public class Customer {
 
     @Id

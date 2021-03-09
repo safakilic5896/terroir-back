@@ -1,12 +1,15 @@
 package fr.epita.pfa.terroirback.database;
 
-import lombok.Data;
+import lombok.*;
 
 import javax.persistence.*;
-import java.util.Set;
 
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
-@Data
+@Builder
 public class RProductOrder {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
