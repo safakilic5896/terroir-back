@@ -33,10 +33,10 @@ public class Commande {
     @JoinColumn(name = "customer_id", nullable = false, foreignKey = @ForeignKey(name = "fk_customer_id"))
     private Customer customer;
 
-    @OneToMany(mappedBy = "commande", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "commande", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<RProductOrder> rProductOrder;
 
     @ManyToOne
-    @JoinColumn(name = "stand_id", foreignKey = @ForeignKey(name = "stand_id"))
-    private Stand stand;
+    @JoinColumn(name = "trader_id", foreignKey = @ForeignKey(name = "fk_trader_id"))
+    private Trader trader;
 }

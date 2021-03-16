@@ -19,10 +19,18 @@ public class Customer {
 
     private String city;
 
-    private int codePostal;
+    private String codePostal;
 
     private String email;
 
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
+    private String name;
+
+    private String fname;
+
+    private String phoneNumber;
+
+    private String idMarkets;
+
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Commande> commande;
 }

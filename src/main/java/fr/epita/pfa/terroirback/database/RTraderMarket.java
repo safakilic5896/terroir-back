@@ -1,10 +1,9 @@
 package fr.epita.pfa.terroirback.database;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
-import javax.persistence.criteria.Order;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -12,20 +11,18 @@ import java.util.Set;
 @NoArgsConstructor
 @Entity
 @Builder
-public class Stand {
+public class RTraderMarket {
+
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private long id;
-
-    private String description;
 
     @ManyToOne
     @JoinColumn(name = "trader_id", foreignKey = @ForeignKey(name = "fk_trader_id"))
     private Trader trader;
 
-    @OneToMany(mappedBy = "stand", cascade = CascadeType.ALL)
-    private Set<Product> product;
+    @ManyToOne
+    @JoinColumn(name = "market_id", foreignKey = @ForeignKey(name = "fk_market_id"))
+    private Market market;
 
-    @OneToMany(mappedBy = "stand", cascade = CascadeType.ALL)
-    private Set<Commande> commande;
 }

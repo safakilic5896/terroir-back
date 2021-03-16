@@ -42,7 +42,7 @@ public class Swagger {
 
     private ApiInfo apiInfo() {
         return new ApiInfo(
-                "My REST API",
+                "Terroir back api",
                 "Some custom description of API.",
                 "1.0",
                 "Terms of service",

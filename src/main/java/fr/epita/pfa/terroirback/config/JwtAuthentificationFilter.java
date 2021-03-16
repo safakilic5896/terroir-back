@@ -2,6 +2,10 @@ package fr.epita.pfa.terroirback.config;
 
 import fr.epita.pfa.terroirback.service.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -10,6 +14,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class JwtAuthentificationFilter extends OncePerRequestFilter {
@@ -20,22 +26,29 @@ public class JwtAuthentificationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
         String header = httpServletRequest.getHeader("Authorization");
-        String username = null;
-        String authToken = null;
-        if (header != null && header.startsWith("Bearer ")) {
-            authToken = header.replace("Bearer", "");
-            try {
-                username = (String) jwtTokenUtil.getClaimFromToken(authToken, "name");
-            } catch (IllegalArgumentException e) {
-                logger.error("an error occured during getting username from token", e);
-            }
-            if (!jwtTokenUtil.validateToken(authToken)) {
-                logger.error("the token is expired and not valid anymore");
-            }
-        } else {
-            logger.error("Not token");
+        if (header == null) {
+            filterChain.doFilter(httpServletRequest, httpServletResponse);
+            return;
         }
-
+        UsernamePasswordAuthenticationToken authentication = getAuthentication(httpServletRequest);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         filterChain.doFilter(httpServletRequest, httpServletResponse);
+    }
+
+    private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        String email = null;
+        if (header != null) {
+            header = header.replace("Bearer ", "");
+            email = (String) jwtTokenUtil.getClaimFromToken(header, "email");
+            if (email != null) {
+                String role = (String) jwtTokenUtil.getClaimFromToken(header, "role");
+                List<GrantedAuthority> roles = new ArrayList<>();
+                roles.add(new SimpleGrantedAuthority(role));
+                return new UsernamePasswordAuthenticationToken(email, null, roles);
+            }
+            return null;
+        }
+        return null;
     }
 }
