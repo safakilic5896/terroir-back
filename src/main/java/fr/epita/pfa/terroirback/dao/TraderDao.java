@@ -10,4 +10,8 @@ import java.util.Optional;
 public interface TraderDao extends JpaRepository<Trader, Long> {
 
     public Optional<Trader> findByEmail(String email);
+
+
+
+
 }

@@ -3,9 +3,11 @@ package fr.epita.pfa.terroirback.dto;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @Builder
-public class TraderDto {
+public class TraderAllProduct {
 
     private long id;
 
@@ -13,7 +15,7 @@ public class TraderDto {
 
     private String description;
 
-    private ProductDto product;
+    private List<ProductDto> product;
 
     private String name;
 

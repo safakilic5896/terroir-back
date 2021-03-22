@@ -1,5 +1,6 @@
 package fr.epita.pfa.terroirback.controller;
 
+import fr.epita.pfa.terroirback.dao.MarketDao;
 import fr.epita.pfa.terroirback.dto.MarketOnly;
 import fr.epita.pfa.terroirback.dto.TraderMarketDto;
 import fr.epita.pfa.terroirback.service.MarketService;

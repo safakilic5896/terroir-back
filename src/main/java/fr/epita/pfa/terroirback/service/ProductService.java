@@ -44,4 +44,24 @@ public class ProductService {
             throw new Exception(e);
         }
     }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void updateProduct(ProductDto product) throws Exception {
+        try {
+            Optional<Trader> trader = traderDao.findById(product.getIdTrader());
+            Optional<Market> market = marketDao.findById(product.getIdMarket());
+            productDao.save(Product.builder().description(product.getDescription())
+                    .name(product.getName()).
+                            origin(product.getOrigin()).
+                            price(product.getPrice()).
+                            trader(trader.get()).
+                            stock(product.getStock()).
+                            market(market.get()).
+                            type(product.getType()).
+                            id(product.getIdProduct()).
+                            build());
+        } catch (Exception e) {
+            throw new Exception(e);
+        }
+    }
 }

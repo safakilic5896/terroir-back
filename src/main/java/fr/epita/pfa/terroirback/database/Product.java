@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.*;
 
-import javax.persistence.*;;
+import javax.persistence.*;;import java.util.Set;
 
 @Getter
 @Setter
@@ -32,8 +32,8 @@ public class Product {
     @Column
     private String description;
 
-    @OneToOne(mappedBy = "product")
-    private RProductOrder rProductOrder;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<RProductOrder> rProductOrder;
 
     @ManyToOne
     @JoinColumn(name = "trader_id", foreignKey = @ForeignKey(name = "fk_trader_id"))

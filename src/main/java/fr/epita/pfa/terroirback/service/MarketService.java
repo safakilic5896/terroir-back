@@ -26,9 +26,21 @@ public class MarketService {
     @Autowired
     private RTraderMarketDao rTraderMarketDao;
 
-    public List<AllMarketDto> findMarketByCodePostal(String codePostal) throws Exception {
+    public List<AllMarketDto> findMarketByCodePostal(String codePostal, String email) throws Exception {
         try {
-            return marketDao.findByCodePostal(codePostal).stream().map(this::marketToAllMarketDto).collect(Collectors.toList());
+            if (email == null) {
+                return marketDao.findByCodePostal(codePostal).stream().map(this::marketToAllMarketDto).collect(Collectors.toList());
+            } else {
+                return marketDao.findByCodePostalAndEmail(codePostal, email).stream().map(this::marketToAllMarketDto).collect(Collectors.toList());
+            }
+        } catch (Exception e) {
+            throw new Exception(e);
+        }
+    }
+
+    public List<AllMarketDto> findAllMarketByEmail(String email) throws Exception {
+        try {
+            return marketDao.findAllByEmail(email).stream().map(this::marketToAllMarketDto).collect(Collectors.toList());
         } catch (Exception e) {
             throw new Exception(e);
         }
@@ -50,17 +62,27 @@ public class MarketService {
         }
     }
 
-    public List<AllMarketDto> findMarketByTypeStand(String type) throws Exception {
+    public List<AllMarketDto> findMarketByTypeStand(String type, String email) throws Exception {
         try {
-            return marketDao.findByTypeStand(type).stream().map(this::marketToAllMarketDto).collect(Collectors.toList());
+            if (email == null) {
+                return marketDao.findByTypeStand(type).stream().map(this::marketToAllMarketDto).collect(Collectors.toList());
+            } else {
+                String regex = "%" + type + "%";
+               return marketDao.findByTypeStandAndEmail(regex, email).stream().map(this::marketToAllMarketDto).collect(Collectors.toList());
+            }
         } catch (Exception e) {
             throw new Exception(e);
         }
     }
 
-    public List<AllMarketDto> findMarketByTypeStandAndCodePostal(String type, String codePostal) throws Exception {
+    public List<AllMarketDto> findMarketByTypeStandAndCodePostal(String type, String codePostal, String email) throws Exception {
         try {
-            return marketDao.findByCodePostalAndType(codePostal, type).stream().map(this::marketToAllMarketDto).collect(Collectors.toList());
+            if (email == null) {
+                return marketDao.findByCodePostalAndType(codePostal, type).stream().map(this::marketToAllMarketDto).collect(Collectors.toList());
+            } else {
+                String regex = "%" + type + "%";
+                return marketDao.findByCodePostalTypeAndEmail(codePostal, regex, email).stream().map(this::marketToAllMarketDto).collect(Collectors.toList());
+            }
         } catch (Exception e) {
             throw new Exception(e);
         }
@@ -94,6 +116,11 @@ public class MarketService {
         }
     }
 
+    public TraderAllProduct getProductByTrader(String email) {
+       Optional<Trader> trader = traderDao.findByEmail(email);
+       return simpleTraderToTraderAllProduct(trader.get());
+    }
+
     private AllMarketDto marketToAllMarketDto(Market market) {
         return AllMarketDto.builder().adress(market.getAdress())
                 .city(market.getCity())
@@ -123,6 +150,17 @@ public class MarketService {
                 .product(ProductToDto(productItem)).build()).collect(Collectors.toList());
     }
 
+    private TraderAllProduct simpleTraderToTraderAllProduct(Trader trader) {
+        return TraderAllProduct.builder()
+                .description(trader.getDescription())
+                .email(trader.getEmail())
+                .id(trader.getId())
+                .fname(trader.getFname())
+                .name(trader.getName())
+                .phoneNumber(trader.getPhoneNumber())
+                .product(listProductToDto(trader.getProduct())).build();
+    }
+
     private ProductDto ProductToDto(Product product) {
         return ProductDto.builder()
                 .IdProduct(product.getId())
@@ -139,6 +177,25 @@ public class MarketService {
                         .id(product.getMarket().getId()).name(product.getMarket().getName()).build())
                 .build();
     }
+
+    private List<ProductDto> listProductToDto(Set<Product> product) {
+        return product.stream().map(productItem -> ProductDto.builder()
+                .IdProduct(productItem.getId())
+                .description(productItem.getDescription())
+                .idMarket(productItem.getMarket().getId())
+                .idTrader(productItem.getTrader().getId())
+                .origin(productItem.getOrigin())
+                .name(productItem.getName())
+                .price(productItem.getPrice())
+                .stock(productItem.getStock())
+                .type(productItem.getType())
+                .market(MarketOnly.builder().adress(productItem.getMarket().getAdress()).city(productItem.getMarket().getAdress())
+                        .codePostal(productItem.getMarket().getCodePostal()).description(productItem.getMarket().getDescription())
+                        .id(productItem.getMarket().getId()).name(productItem.getMarket().getName()).build())
+                .build()).collect(Collectors.toList());
+    }
+
+
 
     private MarketBindTraderDto TraderToMarketBinDto(Market market, Long idTrader) {
         return MarketBindTraderDto.builder()

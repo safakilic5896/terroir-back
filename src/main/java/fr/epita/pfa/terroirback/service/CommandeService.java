@@ -2,7 +2,7 @@ package fr.epita.pfa.terroirback.service;
 
 import fr.epita.pfa.terroirback.dao.*;
 import fr.epita.pfa.terroirback.database.*;
-import fr.epita.pfa.terroirback.dto.CommandeDto;
+import fr.epita.pfa.terroirback.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
@@ -70,9 +70,18 @@ public class CommandeService {
         emailService.sendEmail(mailMessage);
     }
 
+    public CustomerOrderDto getOrder(String email) throws Exception {
+        try {
+            Optional<Customer> customer = customerDao.findByEmail(email);
+            return customerToDto(customer.get());
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+
     /**
      * Build Commande Object with same stand id with CommandeDto List
-     * @param commandeDto
+     * @param commandeDto²
      */
     @Transactional(rollbackFor = Exception.class)
     void processToSaveAnOrder(List<CommandeDto> commandeDto, Customer customer) throws Exception {
@@ -100,5 +109,63 @@ public class CommandeService {
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
+    }
+
+    private CustomerOrderDto customerToDto(Customer customer) {
+        return CustomerOrderDto.builder().id(customer.getId())
+                .city(customer.getCity())
+                .codePostal(customer.getCodePostal())
+                .email(customer.getEmail())
+                .fname(customer.getFname())
+                .name(customer.getName())
+                .phoneNumber(customer.getPhoneNumber())
+                .commandeProductDto(commandeProductToDto(customer.getCommande())).build();
+    }
+
+    private List<CommandeProductDto> commandeProductToDto(Set<Commande> commande) {
+        return commande.stream().map(commandeItem ->
+            CommandeProductDto.builder().id(commandeItem.getId())
+                    .dateOrder(commandeItem.getDateOrder())
+                    .dateTimeReservation(commandeItem.getDateTimeReservation())
+                    .dateValidate(commandeItem.getDateValidate())
+                    .totalPrice(commandeItem.getTotalPrice())
+                    .trader(traderToDto(commandeItem.getTrader()))
+                    .product(productOrderToDto(commandeItem.getRProductOrder(), commandeItem.getTrader().getId())).build()
+        ).collect(Collectors.toList());
+    }
+
+    private TraderDto traderToDto(Trader trader) {
+       return TraderDto.builder().phoneNumber(trader.getPhoneNumber())
+               .name(trader.getName())
+               .fname(trader.getFname())
+               .id(trader.getId())
+               .email(trader.getEmail())
+               .description(trader.getDescription())
+               .product(null)
+               .build();
+    }
+
+    private List<ProductOrderDto> productOrderToDto(Set<RProductOrder> rProductOrder, long idTrader) {
+        return rProductOrder.stream().map(productItem -> ProductOrderDto.builder().amount(productItem.getAmont())
+                .id(productItem.getProduct().getId())
+                .name(productItem.getProduct().getName())
+                .origin(productItem.getProduct().getOrigin())
+                .photo(productItem.getProduct().getPhoto())
+                .price(productItem.getProduct().getPrice())
+                .type(productItem.getProduct().getType())
+                .market(marketToDto(productItem.getProduct().getMarket(), idTrader))
+                .build()).collect(Collectors.toList());
+    }
+
+    private MarketBindTraderDto marketToDto(Market market, long idTrader) {
+        return MarketBindTraderDto.builder()
+                .name(market.getName())
+                .idMarket(market.getId())
+                .description(market.getDescription())
+                .codePostal(market.getCodePostal())
+                .city(market.getCity())
+                .adress(market.getAdress())
+                .idTrader(idTrader)
+                .build();
     }
 }
