@@ -23,14 +23,14 @@ public interface MarketDao extends JpaRepository<Market, Long> {
     @Query("SELECT DISTINCT m FROM Market m INNER JOIN FETCH m.product p where p.type = :type")
     List<Market> findByTypeStand(@Param("type") String type);
 
-    @Query("SELECT DISTINCT m FROM Market m INNER JOIN FETCH m.product p  where p.trader.email = :email and p.name LIKE :type")
-    List<Market> findByTypeStandAndEmail(@Param("type") String type, @Param("email") String email);
+    @Query("SELECT m FROM Market m INNER JOIN FETCH m.product p INNER JOIN FETCH p.trader t  where t.email = :email and (p.name LIKE :type1 or p.name LIKE :type2 or p.name LIKE :type3)")
+    List<Market> findByTypeStandAndEmail(@Param("type1") String type1, @Param("type2") String type2, @Param("type3") String type3, @Param("email") String email);
 
     @Query("SELECT DISTINCT m FROM Market m INNER JOIN FETCH m.product p where p.type = :type and m.codePostal = :code_postal")
     List<Market> findByCodePostalAndType(@Param("code_postal") String codePostal, @Param("type") String type);
 
-    @Query("SELECT DISTINCT m FROM Market m INNER JOIN FETCH m.product p where p.name LIKE :type and m.codePostal = :code_postal and p.trader.email = :email")
-    List<Market> findByCodePostalTypeAndEmail(@Param("code_postal") String codePostal, @Param("type") String type, @Param("email") String email);
+    @Query(value="SELECT m FROM Market m INNER JOIN FETCH m.product p INNER JOIN FETCH p.trader t where (p.name LIKE :type1 or p.name LIKE :type2 or p.name LIKE :type3) and m.codePostal= :code_postal and t.email = :email")
+    List<Market> findByCodePostalTypeAndEmail(@Param("code_postal") String codePostal,@Param("type1") String type1, @Param("type2") String type2, @Param("type3") String type3, @Param("email") String email);
 
     @Query("SELECT DISTINCT m FROM Market m INNER JOIN FETCH m.product p where p.trader.email = :email")
     List<Market> findAllByEmail(@Param("email") String email);

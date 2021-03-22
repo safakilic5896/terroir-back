@@ -67,8 +67,7 @@ public class MarketService {
             if (email == null) {
                 return marketDao.findByTypeStand(type).stream().map(this::marketToAllMarketDto).collect(Collectors.toList());
             } else {
-                String regex = "%" + type + "%";
-               return marketDao.findByTypeStandAndEmail(regex, email).stream().map(this::marketToAllMarketDto).collect(Collectors.toList());
+               return marketDao.findByTypeStandAndEmail("%" + type + "%", "%" + type, type + "%", email).stream().map(this::marketToAllMarketDto).collect(Collectors.toList());
             }
         } catch (Exception e) {
             throw new Exception(e);
@@ -80,8 +79,7 @@ public class MarketService {
             if (email == null) {
                 return marketDao.findByCodePostalAndType(codePostal, type).stream().map(this::marketToAllMarketDto).collect(Collectors.toList());
             } else {
-                String regex = "%" + type + "%";
-                return marketDao.findByCodePostalTypeAndEmail(codePostal, regex, email).stream().map(this::marketToAllMarketDto).collect(Collectors.toList());
+                return marketDao.findByCodePostalTypeAndEmail(codePostal, "%" + type + "%", "%" + type, type + "%", email).stream().map(this::marketToAllMarketDto).collect(Collectors.toList());
             }
         } catch (Exception e) {
             throw new Exception(e);
