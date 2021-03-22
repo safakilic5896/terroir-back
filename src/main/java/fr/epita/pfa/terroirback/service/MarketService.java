@@ -119,6 +119,54 @@ public class MarketService {
        return simpleTraderToTraderAllProduct(trader.get());
     }
 
+    public TraderOrderDto getOrder(String email) {
+        Optional<Trader> trader = traderDao.findByEmail(email);
+        return traderOrderToDto(trader.get());
+    }
+
+    private TraderOrderDto traderOrderToDto(Trader trader) {
+        return TraderOrderDto.builder()
+                .description(trader.getDescription())
+                .email(trader.getEmail())
+                .fname(trader.getFname())
+                .id(trader.getId())
+                .name(trader.getName())
+                .phoneNumber(trader.getPhoneNumber())
+                .commandeProductDto(commandeProductToDto(trader.getCommande()))
+                .build();
+    }
+
+    private List<CommandeProductDto> commandeProductToDto(Set<Commande> commande) {
+        return commande.stream().map(commandeItem -> CommandeProductDto.builder()
+                .dateOrder(commandeItem.getDateOrder())
+                .trader(TraderDto.builder().product(null).description(null).email(commandeItem.getCustomer().getEmail())
+                        .id(commandeItem.getCustomer().getId()).fname(commandeItem.getCustomer().getFname())
+                        .name(commandeItem.getCustomer().getName()).phoneNumber(commandeItem.getCustomer().getPhoneNumber())
+                        .build())
+                .totalPrice(commandeItem.getTotalPrice())
+                .dateValidate(commandeItem.getDateValidate())
+                .dateTimeReservation(commandeItem.getDateTimeReservation())
+                .id(commandeItem.getId())
+                .product(commandeItem.getRProductOrder().stream().map(
+                        productItem -> ProductOrderDto.builder()
+                        .type(productItem.getProduct().getType())
+                        .price(productItem.getProduct().getPrice())
+                        .photo(productItem.getProduct().getPhoto())
+                        .origin(productItem.getProduct().getOrigin())
+                        .name(productItem.getProduct().getOrigin())
+                        .id(productItem.getId())
+                        .amount(productItem.getAmont())
+                        .market(MarketBindTraderDto.builder()
+                                .idMarket(productItem.getProduct().getMarket().getId())
+                                .adress(productItem.getProduct().getMarket().getAdress())
+                                .city(productItem.getProduct().getMarket().getCity())
+                                .codePostal(productItem.getProduct().getMarket().getCity())
+                                .description(productItem.getProduct().getMarket().getDescription())
+                                .idTrader(productItem.getProduct().getTrader().getId())
+                                .name(productItem.getProduct().getMarket().getName())
+                                .build()
+                ).build()).collect(Collectors.toList())).build()).collect(Collectors.toList());
+    }
     private AllMarketDto marketToAllMarketDto(Market market) {
         return AllMarketDto.builder().adress(market.getAdress())
                 .city(market.getCity())

@@ -13,5 +13,4 @@ public interface TraderDao extends JpaRepository<Trader, Long> {
 
 
 
-
 }

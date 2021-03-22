@@ -91,4 +91,15 @@ public class TraderController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @ApiOperation("récuperer toutes les commandes par un vendeur")
+    @GetMapping("/trader/order")
+    public ResponseEntity getOrder() {
+        try {
+            String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            return ResponseEntity.ok().body(marketService.getOrder(email));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }
