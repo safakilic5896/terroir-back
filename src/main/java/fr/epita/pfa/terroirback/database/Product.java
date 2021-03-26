@@ -1,8 +1,11 @@
 package fr.epita.pfa.terroirback.database;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.*;
 
-import javax.persistence.*;;
+import javax.persistence.*;;import java.util.Set;
 
 @Getter
 @Setter
@@ -20,7 +23,7 @@ public class Product {
 
     private String photo;
 
-    private String origine;
+    private String origin;
 
     private float price;
 
@@ -29,10 +32,16 @@ public class Product {
     @Column
     private String description;
 
-    @OneToOne(mappedBy = "product")
-    private RProductOrder rProductOrder;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<RProductOrder> rProductOrder;
 
     @ManyToOne
-    @JoinColumn(name = "stand_id", foreignKey = @ForeignKey(name = "fk_stand_id"))
-    private Stand stand;
+    @JoinColumn(name = "trader_id", foreignKey = @ForeignKey(name = "fk_trader_id"))
+    private Trader trader;
+
+    @ManyToOne
+    @JoinColumn(name = "market_id", foreignKey = @ForeignKey(name = "fk_market_id"))
+    private Market market;
+
+    private String type;
 }

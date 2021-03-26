@@ -3,9 +3,13 @@ package fr.epita.pfa.terroirback.dto;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @Builder
-public class EmailInscription {
+public class CustomerOrderDto {
+
+    private long id;
 
     private String city;
 
@@ -13,13 +17,11 @@ public class EmailInscription {
 
     private String email;
 
-    private String role;
-
-    private String idMarkets;
+    private String name;
 
     private String fname;
 
-    private String name;
-
     private String phoneNumber;
+
+    private List<CommandeProductDto> commandeProductDto;
 }

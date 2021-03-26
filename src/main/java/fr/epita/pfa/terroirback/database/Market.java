@@ -1,5 +1,4 @@
 package fr.epita.pfa.terroirback.database;
-
 import lombok.*;
 
 import javax.persistence.*;
@@ -21,10 +20,19 @@ public class Market {
 
     private String city;
 
-    private int codePostal;
+    private String codePostal;
 
     private String description;
 
-    @OneToMany(mappedBy = "market", cascade = CascadeType.ALL)
+    private String name;
+
+    @OneToMany(mappedBy = "market", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<OpeningTime> openingTime;
+
+    @OneToMany(mappedBy = "market", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Product> product;
+
+    @OneToMany(mappedBy = "market", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<RTraderMarket> rTraderMarket;
+
 }

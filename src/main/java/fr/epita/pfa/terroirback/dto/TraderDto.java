@@ -5,21 +5,19 @@ import lombok.Data;
 
 @Data
 @Builder
-public class EmailInscription {
+public class TraderDto {
 
-    private String city;
-
-    private String codePostal;
+    private long id;
 
     private String email;
 
-    private String role;
+    private String description;
 
-    private String idMarkets;
-
-    private String fname;
+    private ProductDto product;
 
     private String name;
+
+    private String fname;
 
     private String phoneNumber;
 }

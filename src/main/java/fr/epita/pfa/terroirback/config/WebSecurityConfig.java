@@ -31,14 +31,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
                         .allowedOrigins("https://terroir-front-dev.surge.sh", "http://localhost:4200", " https://terroir-auth.herokuapp.com")
-                        .allowedMethods("GET", "PUT", "POST", "PATCH", "DELETE", "OPTIONS");
+                        .allowedMethods("GET", "PUT", "POST", "PATCH", "DELETE", "OPTIONS")
+                        .allowedHeaders("*");
             }
         };
     }
 
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.csrf().disable().authorizeRequests().antMatchers("/emailInscription").permitAll().anyRequest().authenticated().and().
+        httpSecurity.cors().and().csrf().disable().authorizeRequests().antMatchers("/emailInscription").permitAll().antMatchers( "/market/only").permitAll().
+                antMatchers( "/market/all").permitAll().antMatchers( "/market").permitAll().antMatchers( "/trader/**").permitAll().anyRequest().authenticated().and().
                 exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         httpSecurity.addFilterBefore(jwtAuthentificationFilter, UsernamePasswordAuthenticationFilter.class);

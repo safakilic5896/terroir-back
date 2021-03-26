@@ -3,23 +3,23 @@ package fr.epita.pfa.terroirback.dto;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @Builder
-public class EmailInscription {
+public class TraderAllProduct {
 
-    private String city;
-
-    private String codePostal;
+    private long id;
 
     private String email;
 
-    private String role;
+    private String description;
 
-    private String idMarkets;
-
-    private String fname;
+    private List<ProductDto> product;
 
     private String name;
+
+    private String fname;
 
     private String phoneNumber;
 }
