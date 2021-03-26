@@ -1,6 +1,7 @@
 package fr.epita.pfa.terroirback.controller;
 
 import fr.epita.pfa.terroirback.dto.AllMarketDto;
+import fr.epita.pfa.terroirback.dto.CommandeProductDto;
 import fr.epita.pfa.terroirback.dto.TraderAllProduct;
 import fr.epita.pfa.terroirback.service.MarketService;
 import io.swagger.annotations.Api;
@@ -8,10 +9,11 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.xml.ws.Response;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -98,6 +100,51 @@ public class TraderController {
         try {
             String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             return ResponseEntity.ok().body(marketService.getOrder(email));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @ApiOperation("récuperer toutes les commandes selon le statut")
+    @GetMapping("/trader/order/market/{market}")
+    public ResponseEntity getOrderByMarket(@PathVariable("market") long market) {
+        try {
+            String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            return ResponseEntity.ok().body(marketService.getOrderByMarketId(email, market));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @ApiOperation("récuperer toutes les commande selon la date")
+    @GetMapping("/trader/order/date/{date}")
+    public ResponseEntity getOrderByDate(@PathVariable("date") String date) {
+      try{
+          String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+          return ResponseEntity.ok().body(marketService.getOrderByDate(email, date));
+      } catch (Exception e) {
+          return ResponseEntity.badRequest().body(e.getMessage());
+      }
+    }
+
+    @ApiOperation("récuperer toutes les commande selon la date et idMarket")
+    @GetMapping("/trader/order/{date}/{id}")
+    public ResponseEntity getOrderByIdAndDate(@PathVariable("date") String date, @PathVariable("id") long id) {
+        try {
+            String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            return ResponseEntity.ok().body(marketService.getOrderByDateAndId(email, date, id));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @ApiOperation("Valider une commande par un trader")
+    @PutMapping("/trader/order/{id}")
+    public ResponseEntity validateOrder(@PathVariable long id) {
+        try {
+            String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            marketService.validateCommande(id);
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

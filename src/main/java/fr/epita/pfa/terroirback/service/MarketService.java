@@ -1,17 +1,24 @@
 package fr.epita.pfa.terroirback.service;
 
 import fr.epita.pfa.terroirback.dao.MarketDao;
+import fr.epita.pfa.terroirback.dao.OrderDao;
 import fr.epita.pfa.terroirback.dao.RTraderMarketDao;
 import fr.epita.pfa.terroirback.dao.TraderDao;
 import fr.epita.pfa.terroirback.database.*;
 import fr.epita.pfa.terroirback.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,6 +32,12 @@ public class MarketService {
 
     @Autowired
     private RTraderMarketDao rTraderMarketDao;
+
+    @Autowired
+    private OrderDao orderDao;
+
+    @Autowired
+    private EmailService emailService;
 
     public List<AllMarketDto> findMarketByCodePostal(String codePostal, String email) throws Exception {
         try {
@@ -124,6 +137,25 @@ public class MarketService {
         return traderOrderToDto(trader.get());
     }
 
+    public TraderOrderDto getOrderByMarketId(String email, long market) {
+        Optional<Trader> order = traderDao.findByEmailAndIdMarket(email, market);
+        return order.map(this::traderOrderToDto).orElse(null);
+    }
+
+    public TraderOrderDto getOrderByDate(String email, String date) throws ParseException {
+        LocalDate d = LocalDate.parse(date);
+        d = d.plusDays(1);
+        Optional<Trader> trader = traderDao.findByEmailAndCommandeDate(email, d);
+        return trader.map(this::traderOrderToDto).orElse(null);
+    }
+
+    public TraderOrderDto getOrderByDateAndId(String email, String date, long id) {
+        LocalDate d = LocalDate.parse(date);
+        d = d.plusDays(1);
+        Optional<Trader> trader = traderDao.findByEmailIdAndDate(email ,id, d);
+        return trader.map(this::traderOrderToDto).orElse(null);
+    }
+
     private TraderOrderDto traderOrderToDto(Trader trader) {
         return TraderOrderDto.builder()
                 .description(trader.getDescription())
@@ -147,14 +179,15 @@ public class MarketService {
                 .dateValidate(commandeItem.getDateValidate())
                 .dateTimeReservation(commandeItem.getDateTimeReservation())
                 .id(commandeItem.getId())
+                .validate(commandeItem.isValidate())
                 .product(commandeItem.getRProductOrder().stream().map(
                         productItem -> ProductOrderDto.builder()
                         .type(productItem.getProduct().getType())
                         .price(productItem.getProduct().getPrice())
                         .photo(productItem.getProduct().getPhoto())
                         .origin(productItem.getProduct().getOrigin())
-                        .name(productItem.getProduct().getOrigin())
-                        .id(productItem.getId())
+                        .name(productItem.getProduct().getName())
+                        .id(productItem.getProduct().getId())
                         .amount(productItem.getAmont())
                         .market(MarketBindTraderDto.builder()
                                 .idMarket(productItem.getProduct().getMarket().getId())
@@ -220,7 +253,9 @@ public class MarketService {
                 .type(product.getType())
                 .market(MarketOnly.builder().adress(product.getMarket().getAdress()).city(product.getMarket().getAdress())
                     .codePostal(product.getMarket().getCodePostal()).description(product.getMarket().getDescription())
-                        .id(product.getMarket().getId()).name(product.getMarket().getName()).build())
+                        .id(product.getMarket().getId()).name(product.getMarket().getName()).openingTimeDto(product.getMarket().getOpeningTime().stream()
+                        .map(openingTime -> OpeningTimeDto.builder().timeEnd(openingTime.getTimeEnd()).timeBegin(openingTime.getTimeBegin()).id(openingTime.getId())
+                        .day(openingTime.getDay()).build()).collect(Collectors.toList())).build())
                 .build();
     }
 
@@ -252,6 +287,8 @@ public class MarketService {
                 .idMarket(market.getId())
                 .name(market.getName())
                 .idTrader(idTrader)
+                .openingTimeDto(market.getOpeningTime().stream().map(openingTime -> OpeningTimeDto.builder().day(openingTime.getDay()).id(openingTime.getId()).
+                        timeBegin(openingTime.getTimeBegin()).timeEnd(openingTime.getTimeEnd()).build()).collect(Collectors.toList()))
                 .build();
     }
 
@@ -262,5 +299,28 @@ public class MarketService {
                 .codePostal(market.getCodePostal())
                 .name(market.getName())
                 .build();
+    }
+
+    public void validateCommande(long id) throws Exception {
+        try {
+            final SimpleMailMessage mailMessage = new SimpleMailMessage();
+            orderDao.updateValidate(id);
+            Commande order = orderDao.getOne(id);
+            mailMessage.setTo(order.getCustomer().getEmail());
+            StringBuilder msg = new StringBuilder("Votre panier du" + " " + order.getDateOrder() +  " à été validé par le vendeur" + " " + order.getTrader().getName() + " " + order.getTrader().getFname() + ":").append("\n");
+            msg.append("Pour le marché de " + order.getMarket().getName()).append("\n");
+            mailMessage.setTo(order.getCustomer().getEmail());
+            mailMessage.setSubject("Votre panier à été validé par le vendeur" + " " + order.getTrader().getName() + " " + order.getTrader().getFname() + ", vous devez récuperer le " + order.getDateOrder().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + " entre 9h et 12h");
+            mailMessage.setFrom("<MAIL>");
+           order.getRProductOrder().forEach(r ->  {
+                msg.append("* ").append(r.getProduct().getName()).append(": ").append(r.getPrice()).append("€ * ").append(r.getAmont()).append("kg \n");
+            });
+            msg.append("TOTAL: ").append(order.getTotalPrice()).append("€ \n");
+            msg.append("En cas de probléme, veuillez contacter ce numéro: " + order.getTrader().getPhoneNumber());
+            mailMessage.setText(String.valueOf(msg));
+            emailService.sendEmail(mailMessage);
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
     }
 }

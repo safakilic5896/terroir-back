@@ -3,6 +3,7 @@ package fr.epita.pfa.terroirback.dto;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -16,7 +17,7 @@ public class CommandeProductDto {
 
     private LocalDateTime dateTimeReservation;
 
-    private LocalDateTime dateOrder;
+    private LocalDate dateOrder;
 
     private boolean validate;
 

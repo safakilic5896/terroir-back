@@ -3,6 +3,8 @@ package fr.epita.pfa.terroirback.dto;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @Builder
 public class MarketOnly {
@@ -18,4 +20,6 @@ public class MarketOnly {
     private String description;
 
     private String name;
+    
+    private List<OpeningTimeDto> openingTimeDto;
 }

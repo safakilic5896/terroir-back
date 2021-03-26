@@ -1,5 +1,6 @@
 package fr.epita.pfa.terroirback.controller;
 
+import fr.epita.pfa.terroirback.dto.PhotoDto;
 import fr.epita.pfa.terroirback.dto.ProductDto;
 import fr.epita.pfa.terroirback.service.ProductService;
 import io.swagger.annotations.Api;
@@ -24,10 +25,10 @@ public class ProductController {
     @Secured("VENDEUR")
     public ResponseEntity post(@RequestBody ProductDto productDto) {
         try {
-            productService.addProduct(productDto);
-            return ResponseEntity.ok().build();
+            long id = productService.addProduct(productDto);
+            return ResponseEntity.ok(PhotoDto.builder().id(id).build());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(null);
         }
     }
 

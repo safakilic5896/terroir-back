@@ -1,9 +1,12 @@
 package fr.epita.pfa.terroirback.database;
 
 import lombok.*;
+import org.hibernate.annotations.JoinColumnOrFormula;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Set;
 
 @Getter
@@ -19,14 +22,15 @@ public class Commande {
 
     private float totalPrice;
 
-    @Column
+    @Column(columnDefinition = "TIMESTAMP WITH TIME ZONE")
     private LocalDateTime dateTimeReservation;
 
-    private LocalDateTime dateOrder;
+    @Column(columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private LocalDate dateOrder;
 
     private boolean validate;
 
-    @Column
+    @Column(columnDefinition = "TIMESTAMP WITH TIME ZONE")
     private LocalDateTime dateValidate;
 
     @ManyToOne
@@ -39,4 +43,8 @@ public class Commande {
     @ManyToOne
     @JoinColumn(name = "trader_id", foreignKey = @ForeignKey(name = "fk_trader_id"))
     private Trader trader;
+
+    @OneToOne(targetEntity = Market.class, fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false, name = "market_id")
+    private Market market;
 }

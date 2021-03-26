@@ -27,11 +27,11 @@ public class ProductService {
     private MarketDao marketDao;
 
     @Transactional(rollbackFor = Exception.class)
-    public void addProduct(ProductDto product) throws Exception {
+    public long addProduct(ProductDto product) throws Exception {
         try {
             Optional<Trader> trader = traderDao.findById(product.getIdTrader());
             Optional<Market> market = marketDao.findById(product.getIdMarket());
-            productDao.save(Product.builder().description(product.getDescription())
+            Product product1 = productDao.saveAndFlush(Product.builder().description(product.getDescription())
                     .name(product.getName()).
                             origin(product.getOrigin()).
                             price(product.getPrice()).
@@ -40,6 +40,7 @@ public class ProductService {
                             market(market.get()).
                             type(product.getType()).
                             build());
+            return product1.getId();
         } catch (Exception e) {
             throw new Exception(e);
         }

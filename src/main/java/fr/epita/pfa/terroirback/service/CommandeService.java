@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.mail.internet.MimeMessage;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,20 +34,29 @@ public class CommandeService {
     private TraderDao traderDao;
 
     @Autowired
+    private MarketDao marketDao;
+
+    @Autowired
     private EmailService emailService;
 
     @Transactional(rollbackFor = Exception.class)
     public void passAnOrder(List<CommandeDto> commandeDto, String customerEmail) throws Exception {
         try {
-            Map<Long, List<CommandeDto>> groupsByIdStand = commandeDto.stream().collect(
+            Map<Long,Map<Long, List<CommandeDto>>> groupsByIdStand = commandeDto.stream().collect(
+                    Collectors.groupingBy(CommandeDto::getIdMarket,
                     Collectors.groupingBy(CommandeDto::getIdTrader)
-            );
-            List<List<CommandeDto>> subGroups = new ArrayList<>(groupsByIdStand.values());
+            ));
             Optional<Customer> customer = customerDao.findByEmail(customerEmail);
-            for (List<CommandeDto> commande : subGroups) {
-                processToSaveAnOrder(commande, customer.get());
-                sendOrderMail(commande, customer.get());
-            }
+           groupsByIdStand.values().forEach(market -> {
+               market.values().forEach(subGroups -> {
+                   try {
+                       processToSaveAnOrder(subGroups, customer.get());
+                   } catch (Exception e) {
+                       e.printStackTrace();
+                   }
+                   sendOrderMail(subGroups, customer.get());
+               });
+           });
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
@@ -58,7 +69,7 @@ public class CommandeService {
         StringBuilder msg = new StringBuilder("Vous avez un panier à constituer pour" + " " + customer.getName() + " " + customer.getFname() + ":").append("\n");
         msg.append("Pour le marché: " + productDao.getOne(commande.get(0).getIdProduct()).getMarket().getName()).append("\n");
         mailMessage.setTo(trader.get().getEmail());
-        mailMessage.setSubject("Vous avez un nouveau panier à constituer pour " + customer.getName() + " " + customer.getFname());
+        mailMessage.setSubject("Vous avez un nouveau panier à constituer pour " + customer.getName() + " " + customer.getFname() + " pour la date " + commande.get(0).getDateOrder().plusDays(1).format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
         mailMessage.setFrom("<MAIL>");
         for (CommandeDto commandeDto : commande) {
           Product product = productDao.getOne(commandeDto.getIdProduct());
@@ -66,6 +77,7 @@ public class CommandeService {
             msg.append("* ").append(product.getName()).append(": ").append(commandeDto.getPrice()).append("€ * ").append(commandeDto.getAmount()).append("kg \n");
         };
         msg.append("TOTAL: ").append(totalPrice).append("€ \n");
+        msg.append("En cas de probléme, veuillez contacter ce numéro: " + customer.getPhoneNumber());
         mailMessage.setText(String.valueOf(msg));
         emailService.sendEmail(mailMessage);
     }
@@ -89,11 +101,12 @@ public class CommandeService {
             float totalPrice = 0F;
             Set<RProductOrder> productSet = new HashSet<>();
             Optional<Trader> trader = traderDao.findById(commandeDto.get(0).getIdTrader());
-            LocalDateTime dateOrder = commandeDto.get(0).getDateOrder();
+            LocalDate dateOrder = commandeDto.get(0).getDateOrder().plusDays(1);
             LocalDateTime dateReservation = commandeDto.get(0).getDateReservation();
+            Market market = marketDao.getOne(commandeDto.get(0).getIdMarket());
             Commande commandeToSave = Commande.builder().totalPrice(totalPrice)
                     .dateOrder(dateOrder).dateTimeReservation(dateReservation).trader(trader.get())
-                    .customer(customer).validate(false).dateValidate(dateReservation).build();
+                    .customer(customer).validate(false).dateValidate(null).market(market).build();
             for (CommandeDto commande : commandeDto) {
                 Optional<Product> product = productDao.findById(commande.getIdProduct());
                 totalPrice += commande.getPrice();
