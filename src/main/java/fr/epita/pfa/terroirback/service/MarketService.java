@@ -1,9 +1,6 @@
 package fr.epita.pfa.terroirback.service;
 
-import fr.epita.pfa.terroirback.dao.MarketDao;
-import fr.epita.pfa.terroirback.dao.OrderDao;
-import fr.epita.pfa.terroirback.dao.RTraderMarketDao;
-import fr.epita.pfa.terroirback.dao.TraderDao;
+import fr.epita.pfa.terroirback.dao.*;
 import fr.epita.pfa.terroirback.database.*;
 import fr.epita.pfa.terroirback.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +35,9 @@ public class MarketService {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private OpeningTimeDao openingTimeDao;
 
     public List<AllMarketDto> findMarketByCodePostal(String codePostal, String email) throws Exception {
         try {
@@ -120,8 +120,10 @@ public class MarketService {
 
     public void addMarket(MarketOnly marketOnly) throws Exception {
         try {
-            marketDao.save(Market.builder().adress(marketOnly.getAdress()).city(marketOnly.getCity()).codePostal(marketOnly.getCodePostal()
+            Market market = marketDao.saveAndFlush(Market.builder().adress(marketOnly.getAdress()).city(marketOnly.getCity()).codePostal(marketOnly.getCodePostal()
             ).description(marketOnly.getDescription()).name(marketOnly.getName()).build());
+            openingTimeDao.saveAll(marketOnly.getOpeningTimeDto().stream().map(openingTimeDto ->
+                    OpeningTime.builder().day(openingTimeDto.getDay()).timeBegin(openingTimeDto.getTimeBegin()).timeEnd(openingTimeDto.getTimeEnd()).market(market).build()).collect(Collectors.toSet()));
         } catch (Exception e) {
             throw new Exception(e);
         }

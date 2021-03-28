@@ -24,6 +24,7 @@ public class JwtTokenUtil {
                 .setSigningKey(secret)
                 .parseClaimsJws(token)
                 .getBody();
+        
     }
 
     private Boolean isTokenExpired(String token) {
