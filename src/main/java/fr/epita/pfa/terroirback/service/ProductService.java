@@ -29,6 +29,7 @@ public class ProductService {
     @Transactional(rollbackFor = Exception.class)
     public long addProduct(ProductDto product) throws Exception {
         try {
+
             Optional<Trader> trader = traderDao.findById(product.getIdTrader());
             Optional<Market> market = marketDao.findById(product.getIdMarket());
             Product product1 = productDao.saveAndFlush(Product.builder().description(product.getDescription())
@@ -60,6 +61,7 @@ public class ProductService {
                             market(market.get()).
                             type(product.getType()).
                             id(product.getIdProduct()).
+                            photo(product.getPhoto()).
                             build());
         } catch (Exception e) {
             throw new Exception(e);

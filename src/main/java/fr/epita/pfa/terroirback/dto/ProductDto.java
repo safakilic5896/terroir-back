@@ -25,5 +25,7 @@ public class ProductDto {
 
     private String type;
 
+    private String photo;
+
     private MarketOnly market;
 }

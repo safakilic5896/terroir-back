@@ -41,7 +41,7 @@ public class MarketService {
 
     public List<AllMarketDto> findMarketByCodePostal(String codePostal, String email) throws Exception {
         try {
-            if (email == null) {
+            if (email == null || email.equals("anonymousUser")) {
                 return marketDao.findByCodePostal(codePostal).stream().map(this::marketToAllMarketDto).collect(Collectors.toList());
             } else {
                 return marketDao.findByCodePostalAndEmail(codePostal, email).stream().map(this::marketToAllMarketDto).collect(Collectors.toList());
@@ -77,7 +77,7 @@ public class MarketService {
 
     public List<AllMarketDto> findMarketByTypeStand(String type, String email) throws Exception {
         try {
-            if (email == null) {
+            if (email == null || email.equals("anonymousUser")) {
                 return marketDao.findByTypeStand(type).stream().map(this::marketToAllMarketDto).collect(Collectors.toList());
             } else {
                return marketDao.findByTypeStandAndEmail("%" + type + "%", "%" + type, type + "%", email).stream().map(this::marketToAllMarketDto).collect(Collectors.toList());
@@ -89,7 +89,7 @@ public class MarketService {
 
     public List<AllMarketDto> findMarketByTypeStandAndCodePostal(String type, String codePostal, String email) throws Exception {
         try {
-            if (email == null) {
+            if (email == null || email.equals("anonymousUser")) {
                 return marketDao.findByCodePostalAndType(codePostal, type).stream().map(this::marketToAllMarketDto).collect(Collectors.toList());
             } else {
                 return marketDao.findByCodePostalTypeAndEmail(codePostal, "%" + type + "%", "%" + type, type + "%", email).stream().map(this::marketToAllMarketDto).collect(Collectors.toList());
@@ -245,6 +245,7 @@ public class MarketService {
     private ProductDto ProductToDto(Product product) {
         return ProductDto.builder()
                 .IdProduct(product.getId())
+                .photo(product.getPhoto())
                 .description(product.getDescription())
                 .idMarket(product.getMarket().getId())
                 .idTrader(product.getTrader().getId())
@@ -269,6 +270,7 @@ public class MarketService {
                 .idTrader(productItem.getTrader().getId())
                 .origin(productItem.getOrigin())
                 .name(productItem.getName())
+                .photo(productItem.getPhoto())
                 .price(productItem.getPrice())
                 .stock(productItem.getStock())
                 .type(productItem.getType())
