@@ -28,4 +28,8 @@ public class ProductDto {
     private String photo;
 
     private MarketOnly market;
+
+    private boolean actif;
+
+    private String unit;
 }

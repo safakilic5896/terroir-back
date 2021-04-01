@@ -40,6 +40,8 @@ public class ProductService {
                             stock(product.getStock()).
                             market(market.get()).
                             type(product.getType()).
+                            actif(product.isActif()).
+                            unit(product.getUnit()).
                             build());
             return product1.getId();
         } catch (Exception e) {
@@ -67,4 +69,13 @@ public class ProductService {
             throw new Exception(e);
         }
     }
+
+    @Transactional(rollbackFor = Exception.class)
+   public void deleteProduct(long id) throws Exception {
+        try {
+            productDao.deleteProduct(id);
+        } catch (Exception e) {
+            throw new Exception(e);
+        }
+   }
 }

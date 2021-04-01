@@ -8,10 +8,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @Api("Api pour la gestion Produit")
@@ -37,6 +34,17 @@ public class ProductController {
     public ResponseEntity update(@RequestBody ProductDto productDto) {
         try {
             productService.updateProduct(productDto);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/product/delete")
+    @Secured("VENDEUR")
+    public ResponseEntity delete(@RequestBody ProductDto productDto) {
+        try {
+            productService.deleteProduct(productDto.getIdProduct());
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

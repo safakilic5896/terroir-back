@@ -22,4 +22,8 @@ public class ProductOrderDto {
     private String type;
 
     private MarketBindTraderDto market;
+
+    private boolean actif;
+
+    private String unit;
 }

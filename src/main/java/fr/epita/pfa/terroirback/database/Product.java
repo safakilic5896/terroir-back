@@ -43,5 +43,9 @@ public class Product {
     @JoinColumn(name = "market_id", foreignKey = @ForeignKey(name = "fk_market_id"))
     private Market market;
 
+    private boolean actif;
+
     private String type;
+
+    private String unit;
 }

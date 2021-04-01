@@ -166,6 +166,8 @@ public class CommandeService {
                 .photo(productItem.getProduct().getPhoto())
                 .price(productItem.getProduct().getPrice())
                 .type(productItem.getProduct().getType())
+                .actif(productItem.getProduct().isActif())
+                .unit(productItem.getProduct().getUnit())
                 .market(marketToDto(productItem.getProduct().getMarket(), idTrader))
                 .build()).collect(Collectors.toList());
     }
